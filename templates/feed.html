@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<p>Welcome, {{ user.username }}!</p>
+<a href="/logout">Logout</a>
+
+<h3>Create Message</h3>
+<form method="POST">
+    <input name="content" placeholder="What's on your mind?" required>
+    <button type="submit">Send</button>
+</form>
+
+<h3>Log</h3>
+{% for post in posts %}
+	<hr>
+    <p><b>{{ post.user.username if post.user else "Unknown" }}</b>: {{ post.content }}</p>
+{% endfor %}
+
+{% endblock %}
