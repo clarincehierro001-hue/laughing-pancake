@@ -47,7 +47,7 @@ def load_user(user_id):
 
 
 # ---------------- ROUTES ----------------
-@app.route('/react/<int:post_id>', methods=['POST'])
+@app.route(url_for('react', post_id=post.id), methods=['POST'])
 def react(post_id):
     data = request.get_json()
 
@@ -77,7 +77,7 @@ def react(post_id):
 def home():
     if current_user.is_authenticated:
         return redirect(url_for('feed'))
-    return redirect(url_for('login'))
+    <a href="{{ url_for('home') }}">Home</a>
 
 
 @app.route('/register', methods=['GET', 'POST'])
