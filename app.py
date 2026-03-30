@@ -8,33 +8,39 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 
-# ✅ UPDATED: use environment variables (with safe fallback)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "sqlite:///db.sqlite3"
 )
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+def default_reactions():
+    return {
+        "like": 0,
+        "love": 0,
+        "laugh": 0
+    }
+
 
 # ---------------- MODELS ----------------
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False)
+    username = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
 
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200))
-
-    reactions = db.Column(JSON, default={
-        "like": 0,
-        "love": 0,
-        "laugh": 0
-    })
+    content = db.Column(db.String(200), nullable=False)
+    reactions = db.Column(JSON, default=default_reactions, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='posts')
@@ -47,7 +53,8 @@ def load_user(user_id):
 
 
 # ---------------- ROUTES ----------------
-@app.route(url_for('react', post_id=post.id), methods=['POST'])
+@app.route('/react/<int:post_id>', methods=['POST'])
+@login_required
 def react(post_id):
     data = request.get_json()
 
@@ -77,13 +84,22 @@ def react(post_id):
 def home():
     if current_user.is_authenticated:
         return redirect(url_for('feed'))
-    <a href="{{ url_for('home') }}">Home</a>
+    return render_template('home.html')
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-
         existing_user = User.query.filter_by(
             username=request.form['username']
         ).first()
@@ -108,9 +124,13 @@ def register():
 def login():
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
+
         if user and user.password == request.form['password']:
             login_user(user)
             return redirect(url_for('feed'))
+
+        return render_template('login.html', error="Invalid username or password")
+
     return render_template('login.html')
 
 
@@ -118,9 +138,13 @@ def login():
 @login_required
 def feed():
     if request.method == 'POST':
-        post = Post(content=request.form['content'], user=current_user)
-        db.session.add(post)
-        db.session.commit()
+        content = request.form['content'].strip()
+
+        if content:
+            post = Post(content=content, user=current_user)
+            db.session.add(post)
+            db.session.commit()
+
         return redirect(url_for('feed'))
 
     posts = Post.query.order_by(Post.id.desc()).all()
