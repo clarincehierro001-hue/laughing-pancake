@@ -1,275 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed</title>
+    <style>
+        :root {
+            --bg-1: #eef2f7;
+            --bg-2: #d9e4f5;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --header-1: #4facfe;
+            --header-2: #00c6ff;
+            --accent-1: #4facfe;
+            --accent-2: #00f2fe;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --soft: #f3f4f6;
+            --soft-hover: #e5e7eb;
+            --shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
 
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: linear-gradient(135deg, #eef2f7, #d9e4f5);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
 
-/* CONTAINER */
-.chat-container {
-    width: 420px;
-    height: 95vh;
-    background: #fff;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-/* HEADER */
-.chat-header {
-    padding: 16px;
-    text-align: center;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
+        .chat-container {
+            width: min(100%, 460px);
+            height: min(92vh, 820px);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
 
-/* CHAT BOX */
-.chat-box {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scroll-behavior: smooth;
-}
+        .chat-header {
+            padding: 18px 20px;
+            background: linear-gradient(135deg, var(--header-1), var(--header-2));
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
 
-/* MESSAGE ROW */
-.post {
-    display: flex;
-    gap: 10px;
-    position: relative;
-    animation: fadeIn 0.25s ease;
-}
+        .chat-header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
 
-/* ALIGNMENT */
-.other-message { justify-content: flex-start; }
-.my-message { justify-content: flex-end; }
-.my-message .avatar { display: none; }
+        .chat-header p {
+            margin: 6px 0 0;
+            font-size: 0.88rem;
+            opacity: 0.92;
+        }
 
-/* AVATAR */
-.avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ccc, #eee);
-}
+        .chat-box {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background:
+                radial-gradient(circle at top right, rgba(79, 172, 254, 0.06), transparent 30%),
+                linear-gradient(to bottom, #ffffff, #fbfdff);
+            scroll-behavior: smooth;
+        }
 
-/* MESSAGE WRAPPER */
-.message-wrapper { max-width: 75%; position: relative; }
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
 
-/* USERNAME */
-.username { font-size: 11px; color: #777; margin-bottom: 3px; }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #cfd8e3;
+            border-radius: 999px;
+        }
 
-/* MESSAGE BUBBLE */
-.message-content {
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.4;
-    position: relative;
-    background: #f1f3f6;
-}
+        .chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-/* OTHER TAIL */
-.other-message .message-content::after {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 10px;
-    width: 10px;
-    height: 10px;
-    background: #f1f3f6;
-    transform: rotate(45deg);
-}
+        .post {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
 
-/* MY MESSAGE */
-.my-message .message-content {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: white;
-}
+        .post-body {
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-/* MY TAIL */
-.my-message .message-content::after {
-    content: '';
-    position: absolute;
-    right: -5px;
-    top: 10px;
-    width: 10px;
-    height: 10px;
-    background: #00f2fe;
-    transform: rotate(45deg);
-}
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-/* TIMESTAMP */
-.timestamp {
-    font-size: 10px;
-    color: #999;
-    margin-top: 4px;
-}
+        .username {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text);
+        }
 
-/* REACTIONS */
-.reactions { display: flex; gap: 6px; margin-top: 6px; }
-.reaction-btn {
-    font-size: 12px;
-    border: none;
-    border-radius: 12px;
-    padding: 4px 8px;
-    cursor: pointer;
-    background: #f0f0f0;
-    transition: all 0.2s ease;
-}
-.reaction-btn:hover { background: #e0e0e0; transform: scale(1.08); }
+        .timestamp {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
 
-/* DELETE BUTTON */
-.delete-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 12px;
-    cursor: pointer;
-    background: #ff4d4f;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 2px 6px;
-}
-.delete-btn:hover { background: #ff7875; }
+        .message-content {
+            background: #f4f7fb;
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            max-width: 320px;
+            word-break: break-word;
+            line-height: 1.5;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+            border: 1px solid #edf2f7;
+        }
 
-.my-message:hover .delete-btn { display: block; }
+        .post.my-message {
+            justify-content: flex-end;
+        }
 
-/* INPUT AREA */
-.chat-input {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #eee;
-    background: #fafafa;
-    gap: 8px;
-}
-.chat-input input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 25px;
-    border: 1px solid #ddd;
-    outline: none;
-    transition: 0.2s;
-}
-.chat-input input:focus {
-    border-color: #4facfe;
-    box-shadow: 0 0 6px rgba(79,172,254,0.3);
-}
-.chat-input button {
-    padding: 0 18px;
-    border: none;
-    border-radius: 25px;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.chat-input button:hover { transform: scale(1.05); }
+        .post.my-message .post-body {
+            align-items: flex-end;
+        }
 
-/* FOOTER */
-.logout { text-align: center; font-size: 12px; padding: 8px; }
-.logout a { color: #888; text-decoration: none; }
-.logout a:hover { color: #333; }
+        .post.my-message .post-header {
+            justify-content: flex-end;
+        }
 
-/* ANIMATION */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; height: 0; margin:0; padding:0; } }
+        .post.my-message .message-content {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            border: none;
+        }
 
-/* MOBILE */
-@media (max-width: 480px) { .chat-container { width: 100%; height: 100vh; border-radius: 0; } }
-</style>
+        .reactions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reaction-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .reaction-btn:hover {
+            background: var(--soft-hover);
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .reaction-btn:active {
+            transform: scale(0.98);
+        }
+
+        .reaction-btn:focus-visible,
+        .chat-input input:focus-visible,
+        .chat-input button:focus-visible,
+        .logout a:focus-visible {
+            outline: 3px solid rgba(79, 172, 254, 0.28);
+            outline-offset: 2px;
+        }
+
+        .empty-state {
+            margin: auto 0;
+            text-align: center;
+            color: var(--muted);
+            padding: 30px 20px;
+            font-size: 0.95rem;
+        }
+
+        .chat-input-wrapper {
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+            padding: 12px;
+        }
+
+        .chat-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 15px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            outline: none;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #fafafa;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.12);
+            background: #fff;
+        }
+
+        .chat-input button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.15s ease, filter 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-1px);
+            filter: brightness(0.98);
+        }
+
+        .chat-input button:active {
+            transform: scale(0.98);
+        }
+
+        .footer-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            font-size: 0.82rem;
+            background: #fafafa;
+            border-top: 1px solid var(--border);
+        }
+
+        .logout a {
+            text-decoration: none;
+            color: var(--muted);
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .logout a:hover {
+            color: var(--text);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 0;
+            }
+
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .message-content {
+                max-width: 85vw;
+            }
+
+            .chat-input button {
+                padding: 12px 15px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+
 <div class="chat-container">
+    <header class="chat-header">
+        <h1>Welcome, {{ user.username }}! 😊</h1>
+        <p>Your social feed</p>
+    </header>
 
-    <div class="chat-header">
-        Welcome, {{ user.username }} 👋
-    </div>
+    <main class="chat-box" id="chatBox">
+        {% if posts %}
+            {% for post in posts %}
+                <article class="post {% if post.user_id == user.id %}my-message{% endif %}">
+                    <div class="post-body">
+                        <div class="post-header">
+                            <span class="username">{{ post.user.username }}</span>
+                            {% if post.timestamp %}
+                                <time class="timestamp" datetime="{{ post.timestamp.isoformat() }}">
+                                    {{ post.timestamp.strftime('%H:%M') }}
+                                </time>
+                            {% endif %}
+                        </div>
 
-    <div class="chat-box" id="chatBox">
-        {% for post in posts %}
-<div class="post my-message" data-id="{{ post.id }}">
-    <div class="avatar"></div>
-    <div class="message-wrapper">
-        <div class="username">{{ post.user.username }}</div>
-        <div class="message-content">{{ post.content }}</div>
-        <div class="reactions">
-            <button class="reaction-btn">👍 {{ post.reactions['like'] }}</button>
-            <button class="reaction-btn">❤️ {{ post.reactions['love'] }}</button>
-            <button class="reaction-btn">😂 {{ post.reactions['laugh'] }}</button>
-        </div>
-        {% if post.timestamp %}
-        <div class="timestamp">{{ post.timestamp.strftime('%H:%M') }}</div>
+                        <div class="message-content">
+                            {{ post.content }}
+                        </div>
+
+                        <div class="reactions" aria-label="Reactions">
+                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="like" aria-label="Like post">
+                                👍 <span>{{ post.reactions['like'] }}</span>
+                            </button>
+                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="love" aria-label="Love post">
+                                ❤️ <span>{{ post.reactions['love'] }}</span>
+                            </button>
+                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="laugh" aria-label="Laugh at post">
+                                😂 <span>{{ post.reactions['laugh'] }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                No posts yet. Start the conversation ✨
+            </div>
         {% endif %}
-        <!-- DELETE BUTTON VISIBLE ALWAYS -->
-        <button class="delete-btn" onclick="deleteMessage({{ post.id }}, this)">Delete</button>
-    </div>
-</div>
-        {% endfor %}
+    </main>
+
+    <div class="chat-input-wrapper">
+        <form method="POST" class="chat-input" autocomplete="off">
+            <input
+                type="text"
+                name="content"
+                placeholder="Type a message..."
+                maxlength="200"
+                required
+                aria-label="Message input"
+            >
+            <button type="submit">Send</button>
+        </form>
     </div>
 
-    <form method="POST" class="chat-input">
-        <input type="text" name="content" placeholder="Type a message..." required>
-        <button type="submit">Send</button>
-    </form>
-
-    <div class="logout">
-        <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="footer-bar">
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
     </div>
 </div>
 
 <script>
-const chatBox = document.getElementById('chatBox');
+    const chatBox = document.getElementById('chatBox');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-function scrollToBottom() {
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
+    document.querySelectorAll('.reaction-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const postId = btn.dataset.postId;
+            const reaction = btn.dataset.reaction;
 
-// Scroll after load
-window.addEventListener('load', () => { scrollToBottom(); });
+            try {
+                const res = await fetch(`/react/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reaction })
+                });
 
-// Scroll after sending
-document.querySelector('.chat-input').addEventListener('submit', () => {
-    setTimeout(scrollToBottom, 100);
-});
+                const data = await res.json();
 
-// Delete a message
-function deleteMessage(postId, btn) {
-    const post = btn.closest('.post');
-    post.style.transition = 'all 0.3s ease';
-    post.style.opacity = '0';
-    post.style.height = '0px';
-    post.style.margin = '0';
-    post.style.padding = '0';
-
-    // Optional: call backend API to delete
-    // fetch(`/delete/${postId}`, { method: 'DELETE' });
-
-    setTimeout(() => post.remove(), 300);
-}
+                if (data.success) {
+                    btn.querySelector('span').textContent = data.count;
+                }
+            } catch (error) {
+                console.error('Reaction update failed:', error);
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
