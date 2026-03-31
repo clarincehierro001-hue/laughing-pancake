@@ -10,9 +10,9 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f5f7fa;
+            color: #222;
         }
 
-        /* Navbar */
         .navbar {
             background: #2c3e50;
             padding: 15px 20px;
@@ -20,12 +20,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-left,
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .navbar a {
             color: white;
             text-decoration: none;
-            margin-left: 15px;
             font-weight: bold;
         }
 
@@ -33,13 +42,37 @@
             text-decoration: underline;
         }
 
+        .navbar-user {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .logout-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #3a8dde;
+        }
+
         .container {
             max-width: 900px;
             margin: 30px auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
-        /* Flash / error messages */
         .alert {
             padding: 12px;
             margin-bottom: 15px;
@@ -49,11 +82,13 @@
         .alert-error {
             background: #ffe0e0;
             color: #a10000;
+            border: 1px solid #ffb3b3;
         }
 
         .alert-success {
             background: #e0ffe5;
             color: #006b21;
+            border: 1px solid #a8e6b5;
         }
     </style>
 
@@ -61,19 +96,19 @@
 </head>
 <body>
 
-    <!-- NAVBAR -->
     <div class="navbar">
-        <div>
+        <div class="navbar-left">
             <a href="{{ url_for('home') }}">MyApp</a>
         </div>
 
-        <div>
+        <div class="navbar-right">
             {% if current_user.is_authenticated %}
-                <span>Hello, {{ current_user.username }}</span>
+                <span class="navbar-user">Hello, {{ current_user.username }}</span>
                 <a href="{{ url_for('feed') }}">Feed</a>
 
-                <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
-                    <button type="submit" style="margin-left:10px;">Logout</button>
+                <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}">
+                    <button type="submit" class="logout-btn">Logout</button>
                 </form>
             {% else %}
                 <a href="{{ url_for('login') }}">Login</a>
@@ -82,10 +117,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="container">
-
-        <!-- Optional flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -96,7 +128,6 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Error passed manually (like in your routes) -->
         {% if error %}
             <div class="alert alert-error">
                 {{ error }}
