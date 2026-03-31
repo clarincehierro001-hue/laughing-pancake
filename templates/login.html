@@ -1,239 +1,121 @@
 {% extends "base.html" %}
 
-{% block title %}Login - Operation Team{% endblock %}
-{% block page_title %}Login{% endblock %}
-{% block page_description %}Sign in to access your account.{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
+
 <style>
-    :root {
-        --primary: #2563eb;
-        --primary-hover: #1d4ed8;
-        --primary-soft: #dbeafe;
-        --text-main: #111827;
-        --text-muted: #6b7280;
-        --border: #d1d5db;
-        --surface: rgba(255, 255, 255, 0.92);
-        --shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
-        --radius-lg: 20px;
-        --radius-md: 12px;
-        --radius-sm: 10px;
-    }
-
-    .auth-page {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        font-family: "Segoe UI", Arial, sans-serif;
-    }
-
-    .auth-card {
-        width: 100%;
-        max-width: 430px;
-        background: var(--surface);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.35);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        padding: 36px 32px;
-        margin: 0 auto;
-    }
-
-    .auth-header {
+    .auth-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        max-width: 400px;
+        margin: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         text-align: center;
-        margin-bottom: 28px;
-    }
-
-    .auth-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        margin-bottom: 14px;
-        background: linear-gradient(135deg, var(--primary), #38bdf8);
-        color: #fff;
-        font-size: 24px;
-        font-weight: 700;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28);
     }
 
     .auth-title {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-main);
-        letter-spacing: -0.02em;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
     }
 
     .auth-subtitle {
-        margin: 10px 0 0;
         font-size: 14px;
-        color: var(--text-muted);
-        line-height: 1.5;
-    }
-
-    .auth-form {
-        margin-top: 6px;
+        color: #666;
+        margin-bottom: 25px;
     }
 
     .form-group {
-        margin-bottom: 18px;
+        text-align: left;
+        margin-bottom: 15px;
     }
 
-    .form-label {
-        display: inline-block;
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #374151;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 13px 14px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-md);
-        background: #fff;
+    .form-group label {
         font-size: 14px;
-        color: var(--text-main);
-        box-sizing: border-box;
+        display: block;
+        margin-bottom: 5px;
     }
 
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px var(--primary-soft);
-    }
-
-    .form-options {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin: 4px 0 22px;
-        font-size: 13px;
-        flex-wrap: wrap;
-    }
-
-    .checkbox-group {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: #374151;
-    }
-
-    .checkbox-group input[type="checkbox"] {
-        accent-color: var(--primary);
-        width: 15px;
-        height: 15px;
-        cursor: pointer;
-    }
-
-    .link {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    .link:hover {
-        color: var(--primary-hover);
-        text-decoration: underline;
-    }
-
-    .btn-submit {
+    .form-group input {
         width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .remember {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        margin-bottom: 15px;
+    }
+
+    .remember input {
+        margin-right: 8px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 10px;
         border: none;
-        border-radius: var(--radius-md);
-        padding: 13px 16px;
-        background: linear-gradient(135deg, var(--primary), #38bdf8);
-        color: #fff;
-        font-size: 15px;
-        font-weight: 600;
+        border-radius: 6px;
+        background: #4facfe;
+        color: white;
+        font-weight: bold;
         cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #3a8dde;
     }
 
     .auth-footer {
-        margin-top: 22px;
-        text-align: center;
+        margin-top: 15px;
         font-size: 14px;
-        color: var(--text-muted);
     }
 
-    @media (max-width: 480px) {
-        .auth-card {
-            padding: 28px 20px;
-            border-radius: 16px;
-        }
+    .auth-footer a {
+        color: #4facfe;
+        text-decoration: none;
+    }
 
-        .auth-title {
-            font-size: 24px;
-        }
-
-        .form-options {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    .auth-footer a:hover {
+        text-decoration: underline;
     }
 </style>
 
-<div class="auth-page">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-badge">👋</div>
-            <h1 class="auth-title">Welcome Back</h1>
-            <p class="auth-subtitle">Sign in to continue to your account</p>
+<div class="auth-container">
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-subtitle">Login to your account</div>
+
+    <form method="POST">
+        <!-- CSRF (add later if enabled) -->
+        <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" required>
         </div>
 
-        {% if error %}
-            <p style="color: red; text-align: center; margin-bottom: 16px;">{{ error }}</p>
-        {% endif %}
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
 
-        <form method="POST" class="auth-form" novalidate>
-            <div class="form-group">
-                <label for="username" class="form-label">Username</label>
-                <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    class="form-input"
-                    placeholder="Enter your username"
-                    required
-                    autocomplete="username"
-                >
-            </div>
+        <div class="remember">
+            <input type="checkbox" name="remember">
+            <label>Remember me</label>
+        </div>
 
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="form-input"
-                    placeholder="Enter your password"
-                    required
-                    autocomplete="current-password"
-                >
-            </div>
+        <button type="submit" class="btn">Login</button>
+    </form>
 
-            <div class="form-options">
-                <label class="checkbox-group" for="remember">
-                    <input id="remember" type="checkbox" name="remember">
-                    <span>Remember me</span>
-                </label>
-
-                <a href="{{ url_for('register') }}" class="link">Create one</a>
-            </div>
-
-            <button type="submit" class="btn-submit">Sign In</button>
-        </form>
-
-        <p class="auth-footer">
-            Don’t have an account?
-            <a href="{{ url_for('register') }}" class="link">Create one</a>
-        </p>
+    <div class="auth-footer">
+        Don’t have an account?
+        <a href="{{ url_for('register') }}">Register</a>
     </div>
 </div>
+
 {% endblock %}
