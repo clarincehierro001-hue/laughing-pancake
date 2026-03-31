@@ -82,15 +82,29 @@
         margin-top: -8px;
         margin-bottom: 15px;
     }
+
+    .error-message {
+        background: #ffe5e5;
+        color: #b30000;
+        border: 1px solid #ffb3b3;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        text-align: left;
+    }
 </style>
 
 <div class="auth-container">
     <div class="auth-title">Create Account</div>
     <div class="auth-subtitle">Register to start using your app</div>
 
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+
     <form method="POST" action="{{ url_for('register') }}">
-        <!-- Add this later when CSRF is enabled -->
-        <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}">
 
         <div class="form-group">
             <label for="username">Username</label>
@@ -98,9 +112,12 @@
                 type="text"
                 id="username"
                 name="username"
+                value="{{ request.form.get('username', '') }}"
                 required
-                maxlength="150"
+                maxlength="30"
                 autocomplete="username"
+                pattern="[a-zA-Z0-9_]{3,30}"
+                title="Username must be 3 to 30 characters and contain only letters, numbers, and underscores"
             >
         </div>
 
@@ -117,6 +134,7 @@
         </div>
 
         <div class="password-note">
+            Username: 3–30 letters, numbers, or underscores.<br>
             Password must be at least 8 characters.
         </div>
 
