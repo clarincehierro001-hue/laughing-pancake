@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import JSON
-from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,17 +8,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 # ---------------- SECURITY CONFIG ----------------
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-if not app.config['SECRET_KEY']:
-    raise RuntimeError("SECRET_KEY environment variable is not set")
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'c2f2c9f874005c34fab4dab2133591fc')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_SECURE'] = False  # Change to True in production with HTTPS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = False  # Change to True in production with HTTPS
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
 
 db = SQLAlchemy(app)
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
@@ -58,35 +59,6 @@ def load_user(user_id):
 
 
 # ---------------- ROUTES ----------------
-@app.route('/react/<int:post_id>', methods=['POST'])
-@login_required
-def react(post_id):
-    data = request.get_json(silent=True)
-
-    if not data or 'reaction' not in data:
-        return jsonify({"success": False, "error": "Invalid request"}), 400
-
-    reaction_type = data['reaction']
-    post = db.session.get(Post, post_id)
-
-    if not post:
-        return jsonify({"success": False, "error": "Post not found"}), 404
-
-    reactions = dict(post.reactions or DEFAULT_REACTIONS.copy())
-
-    if reaction_type not in reactions:
-        return jsonify({"success": False, "error": "Invalid reaction"}), 400
-
-    reactions[reaction_type] += 1
-    post.reactions = reactions
-    db.session.commit()
-
-    return jsonify({
-        "success": True,
-        "count": reactions[reaction_type]
-    })
-
-
 @app.route('/')
 def home():
     if current_user.is_authenticated:
@@ -101,7 +73,7 @@ def register():
         password = request.form.get('password', '')
 
         if not username or not password:
-            return render_template('register.html', error="All fields required")
+            return render_template('register.html', error="All fields are required")
 
         if len(password) < 8:
             return render_template('register.html', error="Password must be at least 8 characters")
@@ -149,10 +121,10 @@ def feed():
             return redirect(url_for('feed'))
 
         if len(content) > 200:
+            posts = Post.query.order_by(Post.id.desc()).all()
             return render_template(
                 'feed.html',
-                posts=Post.query.order_by(Post.id.desc()).all(),
-                user=current_user,
+                posts=posts,
                 error="Post must be 200 characters or fewer"
             )
 
@@ -163,7 +135,36 @@ def feed():
         return redirect(url_for('feed'))
 
     posts = Post.query.order_by(Post.id.desc()).all()
-    return render_template('feed.html', posts=posts, user=current_user)
+    return render_template('feed.html', posts=posts)
+
+
+@app.route('/react/<int:post_id>', methods=['POST'])
+@login_required
+def react(post_id):
+    data = request.get_json(silent=True)
+
+    if not data or 'reaction' not in data:
+        return jsonify({"success": False, "error": "Invalid request"}), 400
+
+    reaction_type = data['reaction']
+    post = db.session.get(Post, post_id)
+
+    if not post:
+        return jsonify({"success": False, "error": "Post not found"}), 404
+
+    reactions = dict(post.reactions or DEFAULT_REACTIONS.copy())
+
+    if reaction_type not in reactions:
+        return jsonify({"success": False, "error": "Invalid reaction"}), 400
+
+    reactions[reaction_type] += 1
+    post.reactions = reactions
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "count": reactions[reaction_type]
+    })
 
 
 @app.route('/logout', methods=['POST'])
@@ -173,8 +174,11 @@ def logout():
     return redirect(url_for('login'))
 
 
+# ---------------- STARTUP ----------------
+with app.app_context():
+    db.create_all()
+
+
 # ---------------- RUN ----------------
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=False)
