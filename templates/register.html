@@ -1,238 +1,132 @@
 {% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
 {% block content %}
+
 <style>
-    :root {
-        --bg-primary: #f4f7fb;
-        --bg-card: rgba(255, 255, 255, 0.95);
-        --text-primary: #1f2937;
-        --text-secondary: #6b7280;
-        --accent: #2563eb;
-        --accent-hover: #1d4ed8;
-        --success: #10b981;
-        --border: #dbe3ef;
-        --input-bg: #f9fbff;
-        --danger-text: #b42318;
-        --danger-bg: #fef3f2;
-        --danger-border: #fecdca;
-        --shadow: 0 20px 45px rgba(31, 41, 55, 0.12);
-        --radius-lg: 18px;
-        --radius-md: 12px;
-        --radius-sm: 10px;
-    }
-
-    .auth-page {
-        min-height: calc(100vh - 40px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        background:
-            radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
-            radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.08), transparent 30%),
-            linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%);
-    }
-
     .auth-container {
-        width: 100%;
-        max-width: 430px;
-        padding: 34px 30px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        background: var(--bg-card);
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(8px);
-    }
-
-    .auth-header {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        max-width: 400px;
+        margin: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         text-align: center;
-        margin-bottom: 24px;
     }
 
-    .auth-badge {
-        width: 56px;
-        height: 56px;
-        margin: 0 auto 14px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .auth-title {
         font-size: 24px;
-        background: linear-gradient(135deg, #2563eb, #10b981);
-        color: white;
-        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
-    }
-
-    .auth-container h3 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-primary);
+        font-weight: bold;
+        margin-bottom: 10px;
     }
 
     .auth-subtitle {
-        margin-top: 8px;
         font-size: 14px;
-        color: var(--text-secondary);
-        line-height: 1.5;
-    }
-
-    .error-message {
-        color: var(--danger-text);
-        background: var(--danger-bg);
-        border: 1px solid var(--danger-border);
-        padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        margin-bottom: 18px;
-        font-size: 14px;
-        text-align: left;
-    }
-
-    .auth-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
+        color: #666;
+        margin-bottom: 25px;
     }
 
     .form-group {
         text-align: left;
+        margin-bottom: 15px;
     }
 
     .form-group label {
+        font-size: 14px;
         display: block;
-        margin-bottom: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-primary);
+        margin-bottom: 5px;
     }
 
-    .auth-container input {
+    .form-group input {
         width: 100%;
-        padding: 13px 14px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-md);
-        font-size: 14px;
-        background: var(--input-bg);
-        color: var(--text-primary);
-        outline: none;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
     }
 
-    .auth-container input::placeholder {
-        color: #9ca3af;
-    }
-
-    .auth-container input:focus {
-        border-color: var(--accent);
-        background: #fff;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-    }
-
-    .password-hint {
-        margin-top: 8px;
-        font-size: 12px;
-        color: var(--text-secondary);
-    }
-
-    .auth-container button {
+    .btn {
         width: 100%;
-        padding: 13px 16px;
-        margin-top: 4px;
+        padding: 10px;
         border: none;
-        border-radius: var(--radius-md);
-        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        border-radius: 6px;
+        background: #4facfe;
         color: white;
-        font-size: 15px;
-        font-weight: 600;
+        font-weight: bold;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.25s ease;
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
     }
 
-    .auth-container button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
-    }
-
-    .auth-container button:active {
-        transform: translateY(0);
+    .btn:hover {
+        background: #3a8dde;
     }
 
     .auth-footer {
-        margin-top: 22px;
-        text-align: center;
+        margin-top: 15px;
         font-size: 14px;
-        color: var(--text-secondary);
     }
 
-    .auth-container a {
-        color: var(--accent);
+    .auth-footer a {
+        color: #4facfe;
         text-decoration: none;
-        font-weight: 600;
-        transition: color 0.2s ease;
     }
 
-    .auth-container a:hover {
-        color: var(--accent-hover);
+    .auth-footer a:hover {
         text-decoration: underline;
     }
 
-    @media (max-width: 480px) {
-        .auth-container {
-            padding: 26px 20px;
-            border-radius: 16px;
-        }
-
-        .auth-container h3 {
-            font-size: 24px;
-        }
+    .password-note {
+        text-align: left;
+        font-size: 12px;
+        color: #777;
+        margin-top: -8px;
+        margin-bottom: 15px;
     }
 </style>
 
-<div class="auth-page">
-    <div class="auth-container">
-        <div class="auth-header">
-            <div class="auth-badge">👤</div>
-            <h3>Create Account</h3>
-            <p class="auth-subtitle">Join us today and create your account to get started.</p>
+<div class="auth-container">
+    <div class="auth-title">Create Account</div>
+    <div class="auth-subtitle">Register to start using your app</div>
+
+    <form method="POST" action="{{ url_for('register') }}">
+        <!-- Add this later when CSRF is enabled -->
+        <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                maxlength="150"
+                autocomplete="username"
+            >
         </div>
 
-        {% if error %}
-            <div class="error-message">{{ error }}</div>
-        {% endif %}
-
-        <form method="POST" class="auth-form">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    placeholder="Enter your username"
-                    autocomplete="username"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a strong password"
-                    autocomplete="new-password"
-                    required
-                >
-                <div class="password-hint">Use a strong password with letters, numbers, and symbols.</div>
-            </div>
-
-            <button type="submit">Create Account</button>
-        </form>
-
-        <div class="auth-footer">
-            Already have an account?
-            <a href="{{ url_for('login') }}">Login</a>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
         </div>
+
+        <div class="password-note">
+            Password must be at least 8 characters.
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+    </form>
+
+    <div class="auth-footer">
+        Already have an account?
+        <a href="{{ url_for('login') }}">Login</a>
     </div>
 </div>
+
 {% endblock %}
