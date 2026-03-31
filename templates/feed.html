@@ -1,409 +1,211 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feed</title>
-    <style>
-        :root {
-            --bg-1: #eef2f7;
-            --bg-2: #d9e4f5;
-            --card-bg: rgba(255, 255, 255, 0.96);
-            --header-1: #4facfe;
-            --header-2: #00c6ff;
-            --accent-1: #4facfe;
-            --accent-2: #00f2fe;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --soft: #f3f4f6;
-            --soft-hover: #e5e7eb;
-            --shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
-            --radius-lg: 22px;
-            --radius-md: 16px;
-            --radius-sm: 12px;
-        }
+{% extends "base.html" %}
 
-        * {
-            box-sizing: border-box;
-        }
+{% block title %}Feed{% endblock %}
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-        }
+{% block content %}
 
-        body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+<style>
+    .feed-wrapper {
+        max-width: 700px;
+        margin: 0 auto;
+    }
 
-        .chat-container {
-            width: min(100%, 460px);
-            height: min(92vh, 820px);
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: var(--radius-lg);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.6);
-        }
+    .post-form-card,
+    .post-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
 
-        .chat-header {
-            padding: 18px 20px;
-            background: linear-gradient(135deg, var(--header-1), var(--header-2));
-            color: #fff;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
+    .feed-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-        .chat-header h1 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
+    .feed-subtitle {
+        color: #666;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
 
-        .chat-header p {
-            margin: 6px 0 0;
-            font-size: 0.88rem;
-            opacity: 0.92;
-        }
+    .post-form textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        resize: vertical;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+    }
 
-        .chat-box {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            background:
-                radial-gradient(circle at top right, rgba(79, 172, 254, 0.06), transparent 30%),
-                linear-gradient(to bottom, #ffffff, #fbfdff);
-            scroll-behavior: smooth;
-        }
+    .post-form button {
+        background: #4facfe;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-        .chat-box::-webkit-scrollbar {
-            width: 8px;
-        }
+    .post-form button:hover {
+        background: #3a8dde;
+    }
 
-        .chat-box::-webkit-scrollbar-thumb {
-            background: #cfd8e3;
-            border-radius: 999px;
-        }
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
 
-        .chat-box::-webkit-scrollbar-track {
-            background: transparent;
-        }
+    .post-author {
+        font-weight: bold;
+        color: #2c3e50;
+    }
 
-        .post {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-        }
+    .post-id {
+        font-size: 12px;
+        color: #999;
+    }
 
-        .post-body {
-            max-width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+    .post-content {
+        font-size: 15px;
+        color: #333;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        word-wrap: break-word;
+    }
 
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+    .reactions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
 
-        .username {
-            font-size: 0.84rem;
-            font-weight: 700;
-            color: var(--text);
-        }
+    .reaction-btn {
+        border: 1px solid #ddd;
+        background: #f8f9fb;
+        border-radius: 999px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s ease;
+    }
 
-        .timestamp {
-            font-size: 0.72rem;
-            color: var(--muted);
-        }
+    .reaction-btn:hover {
+        background: #eef6ff;
+        border-color: #4facfe;
+    }
 
-        .message-content {
-            background: #f4f7fb;
-            color: var(--text);
-            padding: 12px 14px;
-            border-radius: var(--radius-md);
-            max-width: 320px;
-            word-break: break-word;
-            line-height: 1.5;
-            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
-            border: 1px solid #edf2f7;
-        }
+    .empty-state {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        padding: 30px;
+        text-align: center;
+        color: #666;
+    }
+</style>
 
-        .post.my-message {
-            justify-content: flex-end;
-        }
+<div class="feed-wrapper">
+    <div class="feed-title">Feed</div>
+    <div class="feed-subtitle">
+        Welcome, {{ current_user.username }}. Share something with everyone.
+    </div>
 
-        .post.my-message .post-body {
-            align-items: flex-end;
-        }
+    <div class="post-form-card">
+        <form method="POST" action="{{ url_for('feed') }}" class="post-form">
+            <!-- Add this later when CSRF is enabled -->
+            <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
 
-        .post.my-message .post-header {
-            justify-content: flex-end;
-        }
-
-        .post.my-message .message-content {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white;
-            border: none;
-        }
-
-        .reactions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .reaction-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 6px 10px;
-            cursor: pointer;
-            transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-        }
-
-        .reaction-btn:hover {
-            background: var(--soft-hover);
-            border-color: #cbd5e1;
-            transform: translateY(-1px);
-        }
-
-        .reaction-btn:active {
-            transform: scale(0.98);
-        }
-
-        .reaction-btn:focus-visible,
-        .chat-input input:focus-visible,
-        .chat-input button:focus-visible,
-        .logout a:focus-visible {
-            outline: 3px solid rgba(79, 172, 254, 0.28);
-            outline-offset: 2px;
-        }
-
-        .empty-state {
-            margin: auto 0;
-            text-align: center;
-            color: var(--muted);
-            padding: 30px 20px;
-            font-size: 0.95rem;
-        }
-
-        .chat-input-wrapper {
-            border-top: 1px solid var(--border);
-            background: #ffffff;
-            padding: 12px;
-        }
-
-        .chat-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            min-width: 0;
-            padding: 12px 15px;
-            border-radius: 999px;
-            border: 1px solid #d1d5db;
-            outline: none;
-            font-size: 0.95rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            background: #fafafa;
-        }
-
-        .chat-input input:focus {
-            border-color: var(--accent-1);
-            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.12);
-            background: #fff;
-        }
-
-        .chat-input button {
-            padding: 12px 18px;
-            border: none;
-            border-radius: 999px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: #fff;
-            cursor: pointer;
-            font-weight: 700;
-            transition: transform 0.15s ease, filter 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .chat-input button:hover {
-            transform: translateY(-1px);
-            filter: brightness(0.98);
-        }
-
-        .chat-input button:active {
-            transform: scale(0.98);
-        }
-
-        .footer-bar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-            font-size: 0.82rem;
-            background: #fafafa;
-            border-top: 1px solid var(--border);
-        }
-
-        .logout a {
-            text-decoration: none;
-            color: var(--muted);
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .logout a:hover {
-            color: var(--text);
-            text-decoration: underline;
-        }
-
-        @media (max-width: 520px) {
-            body {
-                padding: 0;
-            }
-
-            .chat-container {
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-            }
-
-            .message-content {
-                max-width: 85vw;
-            }
-
-            .chat-input button {
-                padding: 12px 15px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-<div class="chat-container">
-    <header class="chat-header">
-        <h1>Welcome, {{ user.username }}! 😊</h1>
-        <p>Your social feed</p>
-    </header>
-
-    <main class="chat-box" id="chatBox">
-        {% if posts %}
-            {% for post in posts %}
-                <article class="post {% if post.user_id == user.id %}my-message{% endif %}">
-                    <div class="post-body">
-                        <div class="post-header">
-                            <span class="username">{{ post.user.username }}</span>
-                            {% if post.timestamp %}
-                                <time class="timestamp" datetime="{{ post.timestamp.isoformat() }}">
-                                    {{ post.timestamp.strftime('%H:%M') }}
-                                </time>
-                            {% endif %}
-                        </div>
-
-                        <div class="message-content">
-                            {{ post.content }}
-                        </div>
-
-                        <div class="reactions" aria-label="Reactions">
-                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="like" aria-label="Like post">
-                                👍 <span>{{ post.reactions['like'] }}</span>
-                            </button>
-                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="love" aria-label="Love post">
-                                ❤️ <span>{{ post.reactions['love'] }}</span>
-                            </button>
-                            <button type="button" class="reaction-btn" data-post-id="{{ post.id }}" data-reaction="laugh" aria-label="Laugh at post">
-                                😂 <span>{{ post.reactions['laugh'] }}</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                No posts yet. Start the conversation ✨
-            </div>
-        {% endif %}
-    </main>
-
-    <div class="chat-input-wrapper">
-        <form method="POST" class="chat-input" autocomplete="off">
-            <input
-                type="text"
+            <textarea
                 name="content"
-                placeholder="Type a message..."
                 maxlength="200"
+                placeholder="What's on your mind?"
                 required
-                aria-label="Message input"
-            >
-            <button type="submit">Send</button>
+            ></textarea>
+
+            <button type="submit">Post</button>
         </form>
     </div>
 
-    <div class="footer-bar">
-        <div class="logout">
-            <a href="{{ url_for('logout') }}">Logout</a>
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-author">@{{ post.user.username }}</div>
+                    <div class="post-id">Post #{{ post.id }}</div>
+                </div>
+
+                <div class="post-content">{{ post.content }}</div>
+
+                <div class="reactions">
+                    <button
+                        type="button"
+                        class="reaction-btn"
+                        onclick="reactToPost({{ post.id }}, 'like', this)"
+                    >
+                        👍 Like (<span>{{ post.reactions['like'] if post.reactions else 0 }}</span>)
+                    </button>
+
+                    <button
+                        type="button"
+                        class="reaction-btn"
+                        onclick="reactToPost({{ post.id }}, 'love', this)"
+                    >
+                        ❤️ Love (<span>{{ post.reactions['love'] if post.reactions else 0 }}</span>)
+                    </button>
+
+                    <button
+                        type="button"
+                        class="reaction-btn"
+                        onclick="reactToPost({{ post.id }}, 'laugh', this)"
+                    >
+                        😂 Laugh (<span>{{ post.reactions['laugh'] if post.reactions else 0 }}</span>)
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            No posts yet. Be the first to post something.
         </div>
-    </div>
+    {% endif %}
 </div>
 
 <script>
-    const chatBox = document.getElementById('chatBox');
-    if (chatBox) {
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    async function reactToPost(postId, reactionType, buttonEl) {
+        try {
+            const response = await fetch(`/react/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // Add CSRF header here later if you enable CSRF protection
+                },
+                body: JSON.stringify({
+                    reaction: reactionType
+                })
+            });
 
-    document.querySelectorAll('.reaction-btn').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            const postId = btn.dataset.postId;
-            const reaction = btn.dataset.reaction;
+            const data = await response.json();
 
-            try {
-                const res = await fetch(`/react/${postId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ reaction })
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                    btn.querySelector('span').textContent = data.count;
-                }
-            } catch (error) {
-                console.error('Reaction update failed:', error);
+            if (data.success) {
+                const countSpan = buttonEl.querySelector('span');
+                countSpan.textContent = data.count;
+            } else {
+                alert(data.error || 'Failed to react');
             }
-        });
-    });
+        } catch (error) {
+            alert('Something went wrong while reacting to the post.');
+        }
+    }
 </script>
 
-</body>
-</html>
+{% endblock %}
